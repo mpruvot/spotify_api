@@ -18,9 +18,9 @@ def get_token():
     token_data = {"grant_type": "client_credentials"}
 
     r = requests.post(token_url, data=token_data, headers=token_headers)
-    if r.status_code == 200:
-        token_info = r.json()
-        token = token_info['access_token']
-        return token
-    else:
-        return None
+    r.raise_for_status()
+    
+    token_info = r.json()
+    token = token_info['access_token']
+    return token
+  
