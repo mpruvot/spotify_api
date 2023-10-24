@@ -9,6 +9,7 @@ client_id = os.getenv("CLIENT_ID")
 client_secret = os.getenv("CLIENT_SECRET")
 
 
+
 def get_token():
     token_url = "https://accounts.spotify.com/api/token"
     client_creds = f"{client_id}:{client_secret}"

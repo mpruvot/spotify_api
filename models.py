@@ -9,6 +9,6 @@ class Track(BaseModel):
 class Playlist(BaseModel):
     playlist_name: str = Field(None, description="playlist name")
     playlist_url: HttpUrl = Field(..., description="complete url of the spotify playlist")
-    track_list: list[Track] = Field(..., description="list of tracks in the playlist")
+    track_list: list[Track] = Field(default_factory=list, description="list of tracks in the playlist")
     
     

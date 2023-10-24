@@ -1,4 +1,5 @@
 import json
+from fastapi import HTTPException
 import requests
 from models import Playlist, Track
 from auth import get_token
@@ -40,11 +41,12 @@ class PlaylistManager:
                 #print(json.dumps(playlist_info, indent=6))
                 return found_playlist
             else:
-                return {"error" : "Playlist not Found"}
+                raise HTTPException(status_code=404, detail="Playlist not found")
         except requests.exceptions.HTTPError as err:
-            return {"error": f"An error occurred while fetching the playlist: {err}"} 
-    
+            raise HTTPException(status_code=err.response.status_code, detail=str(err))
 if __name__ == "__main__":
     manager = PlaylistManager()
     result = manager.get_public_playlist("Ambient Essentials")
-    print(result)
+    Playlist = result
+    
+    print(Playlist.track_list)
