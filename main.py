@@ -17,10 +17,9 @@ def test():
     return token
 
 @app.get("/playlist/{playlist_name}")
-def get_playlist(playlist_name : str):
+def get_playlist(playlist_name : str, offset: int = 0, limit: int = 1):
     try:
-       return manager.get_public_playlist(playlist_name)
+       return manager.get_public_playlist(playlist_name, offset, limit)
     except requests.exceptions.HTTPError as err:
         raise HTTPException(status_code=404, detail=str(f"{err}"))
 
-@app.get("")
