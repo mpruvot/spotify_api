@@ -93,8 +93,7 @@ class AlbumManager:
             album_data = response.json()
             album_list_data = album_data.get("albums", {}).get("items", [])
             albums = TypeAdapter(List[Album]).validate_python(album_list_data)
-                                                    
-            
+                                                
             return albums
         except requests.exceptions.HTTPError as err:
             raise HTTPException(status_code=err.response.status_code, detail=str(err))
@@ -102,6 +101,5 @@ class AlbumManager:
             
 if __name__ == "__main__":
     manager = AlbumManager()
-    result = manager.get_albums_from_artist("IDLES")
-
+    result = manager.get_albums_from_artist("rick astley")
     print(result)
