@@ -1,7 +1,5 @@
 from pydantic import BaseModel, Field, HttpUrl
 from typing import Optional, List, Dict, Union
-from auth import *
-import json
 
 class Owner(BaseModel):
     display_name : str
@@ -43,15 +41,3 @@ class Playlist(BaseModel):
     external_urls: Optional[Dict[str, HttpUrl]] = None
     tracks: Optional[Dict[str, Union[HttpUrl, int]]] = None
 
-
-if __name__ == "__main__":
-    token = get_token()
-
-    def get_playlist():
-        with open("mock_return.json", "r") as f:
-            data = json.load(f)
-            playlist_data = data['playlists']['items'][0]
-            pl = Playlist(**playlist_data)
-            print(pl)
-
-    get_playlist()
