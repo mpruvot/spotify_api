@@ -1,35 +1,92 @@
-from fastapi import FastAPI, HTTPException
-from auth import get_token
-from manager import *
+from fastapi import FastAPI, HTTPException, Response, Request
+from fastapi.responses import RedirectResponse, HTMLResponse
+import requests
+from dotenv import load_dotenv
+import os
+import random
+import string
+import json
 
+load_dotenv()
+
+"""
+def get_random_string(len: int = 16):
+    letters_and_digits = string.ascii_letters + string.digits
+    random_str = "".join(random.choice(letters_and_digits) for i in range(len))
+    return random_str
+"""
+
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+REDIRECT_URI = "http://localhost:8000/callback"
+REQUEST_TOKEN_URL = "https://accounts.spotify.com/api/token"
+REQUEST_SPOTIFY_ENDPOINT = "https://api.spotify.com/v1/me"
 
 app = FastAPI()
 
-p_manager = PlaylistManager()
-a_manager = AlbumManager()
 
-
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def home_root():
-    return {"message": "home_page"}
+    return """<html>
+                <body>
+                    <p><a href="http://localhost:8000/login">PLEASE LOGIN</a></p>
+                </body>
+              </html>"""
 
-#Token Tester
+@app.get("/login")
+def login(response: Response):
+    # Request User Authorization
+    params = {
+        "client_id": CLIENT_ID,
+        "response_type": "code",
+        "redirect_uri": REDIRECT_URI,
+        "scope": "user-read-private user-read-email",
+    }
+    url = "https://accounts.spotify.com/authorize"
+    r = requests.get(url, params=params)
+    try:
+        r.raise_for_status()
+        return RedirectResponse(url=r.url)
+
+    except HTTPException as e:
+        return str(e)
+
+
 @app.get("/callback")
-def test():
-    token = get_token()
-    return token
-
-@app.get("/playlist/{playlist_name}")
-def get_playlist(playlist_name : str, offset: int = 0, limit: int = 1):
+def callback(response : Response, code: str):
+    data = {
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": REDIRECT_URI,
+    }
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",  # Cela dépend de l'API, mais c'est souvent nécessaire
+    }
+    token_response = requests.post(REQUEST_TOKEN_URL, data=data, headers=headers)
     try:
-       return p_manager.get_public_playlist(playlist_name, offset, limit)
-    except requests.exceptions.HTTPError as err:
-        raise HTTPException(status_code=404, detail=str(f"{err}"))
+        token_response.raise_for_status()
+        token_data = token_response.json()
+        response.set_cookie("access_token", value=token_data['access_token'])
+        return token_data
+    except HTTPException as e:
+        return str(e)
 
-@app.get("/albums/{artist_name}")
-def get_albums(artists_name : str, offset: int = 0, limit: int = 1):
-    try:
-        return a_manager.get_albums_from_artist(artists_name, offset, limit)
-    except requests.exceptions.HTTPError as err:
-        raise HTTPException(status_code=404, detail=str(f"{err}"))
+@app.get("/user_info")
+def user_info(request : Request):
+    access_token = request.cookies.get('access_token')
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+    if not access_token:
+        return {"error": "Not authorized"}
+    data = requests.get(REQUEST_SPOTIFY_ENDPOINT, headers=headers)
+    user_data = data.json()
+    return user_data
+    
+@app.get("/playlist/{playlist_id}")
+def get_playlist(playlist_id : str):
+    pass
+
     
