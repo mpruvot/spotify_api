@@ -18,8 +18,11 @@ def get_token():
     token_headers = {"Authorization": f"Basic {client_creds_b64}"}
     token_data = {"grant_type": "client_credentials"}
 
-    r = requests.post(token_url, data=token_data, headers=token_headers)
-    r.raise_for_status()
+    try:
+        r = requests.post(token_url, headers=token_headers, data=token_data)
+        r.raise_for_status()  # check the request
+    except requests.exceptions.RequestException as e:
+        print(f"Une erreur s'est produite : {e}")
     
     token_info = r.json()
     token = token_info['access_token']

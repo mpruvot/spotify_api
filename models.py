@@ -1,23 +1,22 @@
 from pydantic import BaseModel, Field, HttpUrl
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union
 from auth import *
 import json
 
-class Artist(BaseModel):
-    name: str
-    genres : Optional[list[str]] = None
+class Owner(BaseModel):
+    display_name : str
     id : str
+    type: str
+    external_urls: Dict[str,HttpUrl]
+    
+    
+class Artist(BaseModel):
+    id: str = Field(..., description="artist ID")
+    name: str = Field(..., description="artist name")
+    genres: Optional[list[str]] = None
     external_urls: Optional[Dict[str, HttpUrl]] = None
-    albums : Optional[List[str]] = []
-    
-class Track(BaseModel):
-    name: str = Field(..., description="track name")
-    artist_name : str = Field(..., description="artist name")
-    album_name : str = Field(..., description="album name")
-    release_date : str
-    total_tracks : int
-    label: Optional[str]
-    
+
+
 class Album(BaseModel):
     id: str
     name: str
@@ -25,20 +24,34 @@ class Album(BaseModel):
     release_date: str
     total_tracks: int
 
+
+class Track(BaseModel):
+    id: str
+    name: str = Field(..., description="track name")
+    artists: Optional[List[Artist]] = Field(..., description="artist name")
+    external_urls: Optional[Dict[str, HttpUrl]] = None
+    album: Album
+    label: Optional[str] = None
+    explicit: bool
+
+
 class Playlist(BaseModel):
-    playlist_name: str = Field(None, description="playlist name")
-    playlist_url: HttpUrl = Field(..., description="complete url of the spotify playlist")
-    track_list: list[Track] = Field(default_factory=list, description="list of tracks in the playlist")
-    
+    id: str
+    name: str = Field(None, description="playlist name")
+    description: Optional[str] = None
+    owner: Owner
+    external_urls: Optional[Dict[str, HttpUrl]] = None
+    tracks: Optional[Dict[str, Union[HttpUrl, int]]] = None
+
 
 if __name__ == "__main__":
     token = get_token()
-    
-    
-    def get_album():
+
+    def get_playlist():
         with open("mock_return.json", "r") as f:
             data = json.load(f)
-            album = Album(**data)
-            print(album)
+            playlist_data = data['playlists']['items'][0]
+            pl = Playlist(**playlist_data)
+            print(pl)
 
-    get_album()
+    get_playlist()
