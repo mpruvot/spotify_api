@@ -2,6 +2,7 @@ import requests
 from requests import HTTPError
 from models import Playlist, Track, Album, Artist
 from oauth import get_token
+import json
 
 
 class SpotifySearch():
@@ -109,3 +110,4 @@ class SpotifySearch():
             raise HTTPError(
                 f"HTTP error occurred: {str(err)} - {playlist_info.text}"
             ) from err
+

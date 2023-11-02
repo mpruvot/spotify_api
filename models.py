@@ -33,11 +33,19 @@ class Track(BaseModel):
     explicit: bool
 
 
+class PlaylistTracksItem(BaseModel):
+    added_at: str
+    track: Track
+
+class PlaylistTracks(BaseModel):
+    href: str
+    items: List[PlaylistTracksItem]
+
 class Playlist(BaseModel):
     id: str
     name: str = Field(None, description="playlist name")
     description: Optional[str] = None
     owner: Owner
     external_urls: Optional[Dict[str, HttpUrl]] = None
-    tracks: Optional[Dict[str, Union[HttpUrl, int]]] = None
+    tracks: PlaylistTracks
 

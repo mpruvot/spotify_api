@@ -52,3 +52,4 @@ def get_playlist(name: str):
     except HTTPError as he:
         raise HTTPException(status_code=400, detail=str(he))
 
+
