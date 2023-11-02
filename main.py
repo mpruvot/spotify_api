@@ -1,92 +1,54 @@
 from fastapi import FastAPI, HTTPException, Response, Request
 from fastapi.responses import RedirectResponse, HTMLResponse
-import requests
-from dotenv import load_dotenv
-import os
-import random
-import string
-import json
+from oauth import get_token
+from manager import SpotifySearch
+from requests import HTTPError
 
-load_dotenv()
-
-"""
-def get_random_string(len: int = 16):
-    letters_and_digits = string.ascii_letters + string.digits
-    random_str = "".join(random.choice(letters_and_digits) for i in range(len))
-    return random_str
-"""
-
-CLIENT_ID = os.getenv("CLIENT_ID")
-CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-REDIRECT_URI = "http://localhost:8000/callback"
-REQUEST_TOKEN_URL = "https://accounts.spotify.com/api/token"
-REQUEST_SPOTIFY_ENDPOINT = "https://api.spotify.com/v1/me"
 
 app = FastAPI()
+token = get_token()
+manager = SpotifySearch(token=token)
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 def home_root():
-    return """<html>
-                <body>
-                    <p><a href="http://localhost:8000/login">PLEASE LOGIN</a></p>
-                </body>
-              </html>"""
-
-@app.get("/login")
-def login(response: Response):
-    # Request User Authorization
-    params = {
-        "client_id": CLIENT_ID,
-        "response_type": "code",
-        "redirect_uri": REDIRECT_URI,
-        "scope": "user-read-private user-read-email",
+    return {
+        'message' : 'hello'
     }
-    url = "https://accounts.spotify.com/authorize"
-    r = requests.get(url, params=params)
+
+@app.get("/artist/{name}")
+def get_artist(name: str):
     try:
-        r.raise_for_status()
-        return RedirectResponse(url=r.url)
+        return manager.get_artist(name)
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except HTTPError as he:
+        raise HTTPException(status_code=400, detail=str(he))
 
-    except HTTPException as e:
-        return str(e)
-
-
-@app.get("/callback")
-def callback(response : Response, code: str):
-    data = {
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
-        "grant_type": "authorization_code",
-        "code": code,
-        "redirect_uri": REDIRECT_URI,
-    }
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",  # Cela dépend de l'API, mais c'est souvent nécessaire
-    }
-    token_response = requests.post(REQUEST_TOKEN_URL, data=data, headers=headers)
+@app.get("/album/{name}")
+def get_album(name: str):
     try:
-        token_response.raise_for_status()
-        token_data = token_response.json()
-        response.set_cookie("access_token", value=token_data['access_token'])
-        return token_data
-    except HTTPException as e:
-        return str(e)
+        return manager.get_album(name)
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except HTTPError as he:
+        raise HTTPException(status_code=400, detail=str(he))
 
-@app.get("/user_info")
-def user_info(request : Request):
-    access_token = request.cookies.get('access_token')
-    headers = {
-        'Authorization': f'Bearer {access_token}'
-    }
-    if not access_token:
-        return {"error": "Not authorized"}
-    data = requests.get(REQUEST_SPOTIFY_ENDPOINT, headers=headers)
-    user_data = data.json()
-    return user_data
-    
-@app.get("/playlist/{playlist_id}")
-def get_playlist(playlist_id : str):
-    pass
+@app.get("/track/{name}")
+def get_track(name: str):
+    try:
+        return manager.get_track(name)
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except HTTPError as he:
+        raise HTTPException(status_code=400, detail=str(he))
 
-    
+@app.get("/playlist/{name}")
+def get_playlist(name: str):
+    try:
+        return manager.get_playlist(name)
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except HTTPError as he:
+        raise HTTPException(status_code=400, detail=str(he))
+
