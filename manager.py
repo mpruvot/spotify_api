@@ -6,6 +6,9 @@ import json
 
 
 class SpotifySearch():
+    """
+    Handles search operations against the Spotify API.
+    """
     def __init__(self, token: str) -> None:
         self.token = token
         self.HEADERS = {"Authorization": f"Bearer {self.token}"}
@@ -19,6 +22,9 @@ class SpotifySearch():
     PLAYLIST_URL = "https://api.spotify.com/v1/playlists/"
 
     def get_id(self, name: str, genre: str, limit: int = 1, offset: int = 0):
+        """
+        Get Spotify ID for a name and genre.
+        """
         if genre.lower() not in self.ALLOWED_GENRES:
             raise ValueError(
                 "Wrong input, genre should be <artist> / <playlist> / <album> / <track>"
@@ -40,6 +46,9 @@ class SpotifySearch():
             return str(err)
 
     def get_artist(self, name: str) -> Artist:
+        """
+        Retrieve artist by name.
+        """
         artist_id = self.get_id(name=name, genre="artist")
 
         if not artist_id:
@@ -58,6 +67,9 @@ class SpotifySearch():
             ) from err
 
     def get_track(self, name: str) -> Track:
+        """
+        Retrieve album by name.
+        """
         track_id = self.get_id(name=name, genre="track")
 
         if not track_id:
@@ -76,6 +88,9 @@ class SpotifySearch():
             ) from err
             
     def get_album(self, name: str) -> Album:
+        """
+        Retrieve album by name.
+        """
         album_id = self.get_id(name=name, genre="album")
 
         if not album_id:
@@ -94,6 +109,9 @@ class SpotifySearch():
             ) from err
 
     def get_playlist(self, name: str) -> Playlist:
+        """
+        Retrieve playlist by name.
+        """
         playlist_id = self.get_id(name=name, genre="playlist")
 
         if not playlist_id:
