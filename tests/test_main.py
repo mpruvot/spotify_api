@@ -5,7 +5,6 @@ from spotify_api.main import app
 
 from spotify_api.models import *
 
-#Create a TestClient instance for testing
 client = TestClient(app)
 
 
