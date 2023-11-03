@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException
-from oauth import get_token
-from manager import SpotifySearch
+from .oauth import get_token
+from .manager import SpotifySearch
 from requests import HTTPError
-from models import *
+from .models import *
 
 
 app = FastAPI()
@@ -14,7 +14,7 @@ def home_root():
     """
     Root GET endpoint returning a welcome message.
     """
-    return {'message': 'hello'}
+    return {"msg": "Hello World"}
 
 @app.get("/artist/{name}", response_model=Artist, responses={404: {"description": "Artist not found"}})
 def get_artist(name: str):

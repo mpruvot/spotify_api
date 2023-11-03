@@ -1,7 +1,7 @@
 import requests
 from requests import HTTPError
-from models import Playlist, Track, Album, Artist
-from oauth import get_token
+from .models import Playlist, Track, Album, Artist
+from .oauth import get_token
 import json
 
 
@@ -40,7 +40,10 @@ class SpotifySearch():
         try:
             r.raise_for_status()
             response = r.json()
-            return response[f"{genre}s"]["items"][0]["id"]
+            if response[f"{genre}s"]["items"]:
+                return response[f"{genre}s"]["items"][0]["id"]
+            else:
+                raise ValueError(f"{genre.capitalize()} not found")
 
         except HTTPError as err:
             return str(err)
