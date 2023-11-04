@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pydantic import BaseModel, Field, HttpUrl
 from typing import Optional, List, Dict, Union
 import pytest
@@ -14,6 +15,8 @@ class Artist(BaseModel):
     name: str = Field(..., description="artist name")
     genres: Optional[list[str]] = None
     external_urls: Optional[Dict[str, HttpUrl]] = None
+    href : str
+    #albums : Optional[List['Album']]
     
 class ArtistEssentials(BaseModel):
     id: str = Field(..., description="artist ID")

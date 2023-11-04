@@ -1,0 +1,39 @@
+.
+├── Dockerfile
+├── __pycache__
+│   ├── __init__.cpython-311.pyc
+│   ├── main.cpython-311.pyc
+│   ├── main_test.cpython-311-pytest-7.4.3.pyc
+│   ├── manager.cpython-311.pyc
+│   ├── models.cpython-311.pyc
+│   ├── oauth.cpython-311.pyc
+│   └── test_main.cpython-311-pytest-7.4.3.pyc
+├── requirements.txt
+├── spotify_api
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-311.pyc
+│   │   ├── main.cpython-311.pyc
+│   │   ├── manager.cpython-311.pyc
+│   │   ├── models.cpython-311.pyc
+│   │   └── oauth.cpython-311.pyc
+│   ├── main.py
+│   ├── manager.py
+│   ├── models.py
+│   └── oauth.py
+├── tests
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-311.pyc
+│   │   ├── main_test.cpython-311-pytest-7.4.3.pyc
+│   │   ├── test_main.cpython-311-pytest-7.4.2.pyc
+│   │   ├── test_main.cpython-311-pytest-7.4.3.pyc
+│   │   ├── test_token.cpython-311-pytest-7.4.2.pyc
+│   │   └── test_token.cpython-311-pytest-7.4.3.pyc
+│   ├── test_main.py
+│   └── test_token.py
+├── tree.txt
+└── venv
+****
+
+342 directories, 2818 files
