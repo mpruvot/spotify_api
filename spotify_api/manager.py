@@ -5,10 +5,11 @@ from .oauth import get_token
 import json
 
 
-class SpotifySearch():
+class SpotifySearch:
     """
     Handles search operations against the Spotify API.
     """
+
     def __init__(self, token: str) -> None:
         self.token = token
         self.HEADERS = {"Authorization": f"Bearer {self.token}"}
@@ -37,59 +38,44 @@ class SpotifySearch():
         }
 
         r = requests.get(url=self.SEARCH_URL, headers=self.HEADERS, params=params)
-        try:
-            r.raise_for_status()
-            response = r.json()
-            if response[f"{genre}s"]["items"]:
-                return response[f"{genre}s"]["items"][0]["id"]
-            else:
-                raise ValueError(f"{genre.capitalize()} not found")
-
-        except HTTPError as err:
-            return str(err)
+        r.raise_for_status()
+        response = r.json()
+        genre_items = response.get(f"{genre}s", {}).get("items")
+        if genre_items:
+            return genre_items[0].get("id")
+        else:
+            raise ValueError(f"{genre.capitalize()} not found")
 
     def get_artist(self, name: str) -> Artist:
         """
         Retrieve artist by name.
         """
         artist_id = self.get_id(name=name, genre="artist")
-
         if not artist_id:
             raise ValueError(f"No artist found for {name}")
+
         artist_info = requests.get(
-            url=self.ARTIST_URL + artist_id, headers=self.HEADERS
+            url=f"{self.ARTIST_URL}{artist_id}", headers=self.HEADERS
         )
-        try:
-            artist_info.raise_for_status()
-            artist_data = artist_info.json()
-            artist = Artist(**artist_data)
-            return artist
-        except HTTPError as err:
-            raise HTTPError(
-                f"HTTP error occurred: {str(err)} - {artist_info.text}"
-            ) from err
+        artist_info.raise_for_status()
+        artist_data = artist_info.json()
+        artist = Artist(**artist_data)
+        return artist
 
     def get_track(self, name: str) -> Track:
         """
-        Retrieve album by name.
+        Retrieve track by name.
         """
         track_id = self.get_id(name=name, genre="track")
 
         if not track_id:
             raise ValueError(f"No track found for {name}")
-        track_info = requests.get(
-            url=self.TRACK_URL + track_id, headers=self.HEADERS
-        )
-        try:
-            track_info.raise_for_status()
-            track_data = track_info.json()
-            track = Track(**track_data)
-            return track
-        except HTTPError as err:
-            raise HTTPError(
-                f"HTTP error occurred: {str(err)} - {track_info.text}"
-            ) from err
-            
+        track_info = requests.get(url=self.TRACK_URL + track_id, headers=self.HEADERS)
+        track_info.raise_for_status()
+        track_data = track_info.json()
+        track = Track(**track_data)
+        return track
+
     def get_album(self, name: str) -> Album:
         """
         Retrieve album by name.
@@ -98,18 +84,11 @@ class SpotifySearch():
 
         if not album_id:
             raise ValueError(f"No album found for {name}")
-        album_info = requests.get(
-            url=self.ALBUM_URL + album_id, headers=self.HEADERS
-        )
-        try:
-            album_info.raise_for_status()
-            album_data = album_info.json()
-            album = Album(**album_data)
-            return album
-        except HTTPError as err:
-            raise HTTPError(
-                f"HTTP error occurred: {str(err)} - {album_info.text}"
-            ) from err
+        album_info = requests.get(url=self.ALBUM_URL + album_id, headers=self.HEADERS)
+        album_info.raise_for_status()
+        album_data = album_info.json()
+        album = Album(**album_data)
+        return album
 
     def get_playlist(self, name: str) -> Playlist:
         """
@@ -122,13 +101,7 @@ class SpotifySearch():
         playlist_info = requests.get(
             url=self.PLAYLIST_URL + playlist_id, headers=self.HEADERS
         )
-        try:
-            playlist_info.raise_for_status()
-            playlist_data = playlist_info.json()
-            playlist = Playlist(**playlist_data)
-            return playlist
-        except HTTPError as err:
-            raise HTTPError(
-                f"HTTP error occurred: {str(err)} - {playlist_info.text}"
-            ) from err
-
+        playlist_info.raise_for_status()
+        playlist_data = playlist_info.json()
+        playlist = Playlist(**playlist_data)
+        return playlist
